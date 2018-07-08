@@ -23,13 +23,17 @@
         <!--Picture-->
 
         <ImageView
+            android:scaleType="centerInside"
+            android:id="@+id/imvPicture"
             android:layout_gravity="center_horizontal"
             android:src="@drawable/picture"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
+            android:layout_width="250dp"
+            android:layout_height="200dp" />
 
         <!--Name-->
         <EditText
+            android:id="@+id/ediName"
+            android:inputType="text"
             android:layout_marginTop="10dp"
             android:background="@drawable/name_textfield"
             android:layout_width="match_parent"
@@ -37,6 +41,8 @@
 
         <!--User-->
         <EditText
+            android:id="@+id/ediUser"
+            android:inputType="text"
             android:layout_marginTop="10dp"
             android:background="@drawable/user"
             android:layout_width="match_parent"
@@ -44,6 +50,7 @@
 
         <!--Password-->
         <EditText
+            android:id="@+id/ediPassword"
             android:background="@drawable/pass"
             android:inputType="text"
             android:layout_width="match_parent"
