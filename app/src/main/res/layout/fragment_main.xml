@@ -25,6 +25,7 @@
             android:src="@drawable/logo" />
 
         <EditText
+            android:id="@+id/editUser"
             android:background="@drawable/user"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -33,6 +34,7 @@
         <!--password-->
 
         <EditText
+            android:id="@+id/ediPassword"
             android:background="@drawable/pass"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -40,6 +42,7 @@
             android:inputType="textPassword" />
         <!--Login-->
         <Button
+            android:id="@+id/btnLogin"
             android:textColor="#ffffff"
             android:background="@drawable/buttton"
             android:layout_width="match_parent"

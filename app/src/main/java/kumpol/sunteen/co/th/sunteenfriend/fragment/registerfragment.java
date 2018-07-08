@@ -7,6 +7,7 @@ import android.graphics.BitmapFactory;
 import android.media.Image;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.StrictMode;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -23,16 +24,22 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import java.io.File;
+
+import it.sauronsoftware.ftp4j.FTPClient;
+import it.sauronsoftware.ftp4j.FTPDataTransferListener;
 import kumpol.sunteen.co.th.sunteenfriend.MainActivity;
 import kumpol.sunteen.co.th.sunteenfriend.R;
 import kumpol.sunteen.co.th.sunteenfriend.utility.MyAlertDialog;
+import kumpol.sunteen.co.th.sunteenfriend.utility.MyConstant;
+import kumpol.sunteen.co.th.sunteenfriend.utility.UploadDataToServer;
 
 public class registerfragment extends Fragment {
     //    Explicit
     private Uri uri;
     private ImageView imageView;
     private boolean aBoolean = true;
-
+    private String imageString;
 
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
@@ -96,11 +103,33 @@ public class registerfragment extends Fragment {
         } else {
 //            No space
             uploadImage();
-
+            uploadText(nameString,userString,passwordString);
         }
 
 
     }//Upload and Update
+
+    private void uploadText(String nameString, String userString, String passwordString) {
+
+        MyConstant myConstant = new MyConstant();
+        imageString = myConstant.getUrlImage() + imageString;
+        try {
+
+            UploadDataToServer uploadDataToServer = new UploadDataToServer(getActivity());
+            uploadDataToServer.execute(nameString,userString,passwordString,imageString, myConstant.getUrlAddUser());
+
+            if (Boolean.parseBoolean(uploadDataToServer.get())) {
+                Toast.makeText(getActivity(),"Success Register", Toast.LENGTH_SHORT).show();
+                getActivity().getSupportFragmentManager().popBackStack();
+            } else {
+                Toast.makeText(getActivity(),"Cannot Register", Toast.LENGTH_SHORT).show();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+
+    }
 
     private void uploadImage() {
         //Find path image
@@ -118,12 +147,69 @@ public class registerfragment extends Fragment {
 
         Log.d("8JulyV1", "Path ==> " + pathString);
 
+//        Find ImageString
+        imageString = pathString.substring(pathString.lastIndexOf("/"));
+        Log.d("8JulyV1", "imageString ==> " + imageString);
 
 
+//        Change policy
+        StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy
+                .Builder().permitAll().build();
+        StrictMode.setThreadPolicy(policy);
+
+//        Use Library Ftp4j
+        File file = new File(pathString);
+        MyConstant myConstant = new MyConstant();
+        FTPClient ftpClient = new FTPClient();
+
+        try {
+//            Event A
+            ftpClient.connect(myConstant.getHostFTP(),myConstant.getPortFTP());
+            ftpClient.login(myConstant.getUserFTP(),myConstant.getPasswordFTP());
+            ftpClient.setType(FTPClient.TYPE_BINARY);
+            ftpClient.changeDirectory("jochi");
+            ftpClient.upload(file, new uploadListener());
+
+        } catch (Exception e) {
+            e.printStackTrace();
+          try {
+//              Event B
+              ftpClient.disconnect(true);
+          } catch (Exception e1) {
+              e1.printStackTrace();
+          }
+        }
 
 
+    }
 
 
+    public class uploadListener implements FTPDataTransferListener{
+
+        @Override
+        public void started() {
+            Toast.makeText(getActivity(), "Start Upload", Toast.LENGTH_SHORT).show();
+        }
+
+        @Override
+        public void transferred(int i) {
+            Toast.makeText(getActivity(),"Process Upload", Toast.LENGTH_SHORT).show();
+        }
+
+        @Override
+        public void completed() {
+            Toast.makeText(getActivity(),"Upload Complete", Toast.LENGTH_SHORT).show();
+        }
+
+        @Override
+        public void aborted() {
+
+        }
+
+        @Override
+        public void failed() {
+
+        }
     }
 
     @Override
